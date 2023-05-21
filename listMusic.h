@@ -43,12 +43,12 @@ int excluirDaLista(TLista *L, char *cantor);
 TMusica* procurarPosicao(int posicao, TLista *lista);
 TMusica *musicacpy(TMusica *original);
 //ARVORE BINARIA
-TNo *procurarNo(TNo **nodo, char *str);
+TNo *procurarNo(TNo *nodo, char *str);
 TNo *criarNo(char *str);
 TNo *inserirNo(TNo **nodo, char *str);
 TNo *removeNo(TNo *nodo, char *str);
 //FILA
-TFila *inserirFila(TFila *inicio, TFila *novo);
+TFila *inserirFila(TFila **inicio, TFila *novo);
 
 //=== Funcoes ======================================================
 //======================LISTA=======================
@@ -167,14 +167,14 @@ TNo *inserirNo(TNo **nodo, char *str){
     return *nodo;
 }
 
-TNo *procurarNo(TNo **nodo, char *str){
-    if(!(*nodo))
+TNo *procurarNo(TNo *nodo, char *str){
+    if(!nodo)
         return NULL;
-    else if(strcmp(str, (*nodo)->nome) < 0)
-        return procurarNo(&(*nodo)->esq, str);
-    else if(strcmp(str, (*nodo)->nome) > 0)
-        return procurarNo(&(*nodo)->dir, str);
-    else return *nodo;
+    else if(strcmp(str, (nodo)->nome) < 0)
+        return procurarNo((nodo)->esq, str);
+    else if(strcmp(str, (nodo)->nome) > 0)
+        return procurarNo((nodo)->dir, str);
+    else return nodo;
 }
 
 TNo *removeNo(TNo *nodo, char *str){
@@ -208,10 +208,12 @@ TNo *removeNo(TNo *nodo, char *str){
 //=====================================================
 
 //========================FILA===============================
-TFila *inserirFila(TFila *inicio, TFila *novo){
-    if(!inicio)
-        inicio = novo;
+TFila *inserirFila(TFila **inicio, TFila *novo){
+    if(!(*inicio)){
+        *inicio = novo;
+        (*inicio)->prox = NULL;
+    }
     else
-        inicio->prox = inserirFila(inicio->prox, novo);
-    return inicio;
+        (*inicio)->prox = inserirFila(&(*inicio)->prox, novo);
+    return *inicio;
 }
