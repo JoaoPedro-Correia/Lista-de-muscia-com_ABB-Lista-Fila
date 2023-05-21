@@ -9,6 +9,7 @@
 int menu();
 void limpar();
 void limparBuffer();
+void addFila(TLista *list);
 void addMusica(TLista *list, TMusica *musica);
 TMusica *lerArquivo(FILE *fl);
 void inserirMusica(TLista *list);
@@ -35,10 +36,11 @@ int main(){
 }
 
 int menu(){
-    limpar();
     int opcao;
+    
+    limpar();
     printf("\n0 - Sair (Encerrar Aplicação)");
-    printf("\n1 - Inserir Nova Música");
+    printf("\n1 - Ler Arquivo de Músicas");
     printf("\n2 - Listar Músicas Cadastradas");
     printf("\n3 - Consultar Músicas por Nome do Artista");
     printf("\n4 - Consultar Músicas por nome da Música");
@@ -53,7 +55,7 @@ int menu(){
 
 void limparBuffer() {
         int c;
-        while ((c = getchar()) != '\n' && c != EOF){}
+        while((c = getchar()) != '\n' && c != EOF){}
 }
 
 void limpar(){
@@ -64,10 +66,22 @@ void limpar(){
     #endif
 }
 
+void addFila(TLista *list){
+    TFila *fila;
+    TMusica *musica;
+    TNo *nodo;
+
+    musica = list->fim;
+    fila->musica = musica;
+    nodo = procurarNo(&list->indCantor, musica->cantor);
+    inserirFila(nodo->filho,fila);
+}
+
 void addMusica(TLista *list, TMusica *musica){
     inserirNo(&list->indCantor, musica->cantor);
     inserirNo(&list->indMusica, musica->nomeMusica);
     inserirNaLista(list, musica);
+    addFila(list);
 }
 
 TMusica *lerArquivo(FILE *fl){
