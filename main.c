@@ -11,7 +11,9 @@
 int menu();
 void limpar();
 void limparBuffer();
-void addFila(TLista *list, TNo* (*nodo)(TLista*, TMusica*));
+TNo *nodoCantor(TLista *list, TMusica *musica);
+TNo *nodoMusica(TLista *list, TMusica *musica);
+void addFila(TLista *list, TNo*(*nodo)(TLista*, TMusica*));
 void addMusica(TLista *list, TMusica *musica);
 TMusica *lerArquivo(FILE *fl);
 void inserirMusica(TLista *list);
@@ -19,6 +21,11 @@ void listarMusicas(TLista lista);
 void caminhoEmOrdem(TNo *nodo, char *nome);
 void printFila(TFila *fila);
 void procurarPeloArtista(TLista *list);
+void procurarPelaMusica(TLista *list);
+void procurarNaArvore(TLista *list, void (*procurar)(TLista*));
+void printListaPorAno(TMusica *musica, unsigned int ano);
+void procurarPorAno(TLista *list);
+void excluirMusica(TLista *list);
 
 //MAIN=============================================
 int main(){
@@ -31,10 +38,12 @@ int main(){
         switch(opcao){
             case 1: inserirMusica(&lista);break;
             case 2: listarMusicas(lista);break;
-            case 3: procurarPeloArtista(&lista);break;            
-            //case 4:
-            //case 5:
-            //case 6:
+                    //NOS CASE'S 3 E 4 É PASSADO UMA FUNCAO COMO PARAMETRO
+                    //NA BUSCA PELA ARVORE DO ARTISTA E PELO NOME DA MUSICA
+            case 3: procurarNaArvore(&lista, procurarPeloArtista);break;            
+            case 4: procurarNaArvore(&lista, procurarPelaMusica);break;            
+            case 5: procurarPorAno(&lista);break;
+            case 6: excluirMusica(&lista);break;
         }
     }while(opcao);
 
@@ -46,13 +55,13 @@ int menu(){
     int opcao;
     
     limpar();
-    printf("\n0 - Sair (Encerrar Aplicação)");
-    printf("\n1 - Ler Arquivo de Músicas");
-    printf("\n2 - Listar Músicas Cadastradas");
-    printf("\n3 - Consultar Músicas por Nome do Artista");
-    printf("\n4 - Consultar Músicas por nome da Música");
-    printf("\n5 - Consultar Músicas por Ano de Lançamento");
-    printf("\n6 - Excluir Música específica");
+    printf("\n0 - Sair (Encerrar Aplicao)");
+    printf("\n1 - Ler Arquivo de Musicas");
+    printf("\n2 - Listar Musicas Cadastradas");
+    printf("\n3 - Consultar Musicas por Nome do Artista");
+    printf("\n4 - Consultar Musicas por nome da Musica");
+    printf("\n5 - Consultar Musicas por Ano de Lancamento");
+    printf("\n6 - Excluir Musica especifica");
     
     printf("\n\nOpcao: ");
     scanf("%d",&opcao);
@@ -63,7 +72,7 @@ int menu(){
 //==========================================================
 void limparBuffer() {
         int c;
-        while((c = getchar()) != '\n' && c != EOF){}
+        while((c = getchar()) != '\n'){}
 }
 
 //==========================================================
@@ -96,7 +105,6 @@ void addFila(TLista *list, TNo* (*nodo)(TLista*, TMusica*)){
     fila->musica = musica;
     no = nodo(list, musica);
     inserirFila(&(no)->filho,fila);
-    printf("\nsaiu");
 }
 
 //==========================================================
@@ -130,6 +138,8 @@ void inserirMusica(TLista *list){
     while(!feof(fl)){addMusica(list, lerArquivo(fl));}
     printf("\nArquivo lido");
     fclose(fl);
+    limparBuffer();
+    getchar();
 }
 
 //==========================================================
@@ -167,12 +177,59 @@ void caminhoEmOrdem(TNo *nodo, char *nome){
 void procurarPeloArtista(TLista *list){
     char nome[30];
     limparBuffer();
-    limpar();
 
     printf("Qual o Nome do Artita: ");
     scanf("%s",nome);
 
     caminhoEmOrdem(list->indCantor, nome);
+}
+
+//==========================================================
+void procurarPelaMusica(TLista *list){
+    char nome[30];
+    limparBuffer();
+
+    printf("Qual o Nome da Musica: ");
+    scanf("%s",nome);
+
+    caminhoEmOrdem(list->indMusica, nome);
+}
+
+//==========================================================
+void procurarNaArvore(TLista *list, void (*procurar)(TLista*)){
+    limpar();
+
+    procurar(list);
+
     limparBuffer();
     getchar();
+}
+
+//==========================================================
+void printFilaPorAno(TMusica *musica, unsigned int ano){
+    if(musica){
+        if(!(musica->ano - ano))printf("\n%s   \t%s   \t%d",musica->nomeMusica, musica->cantor, musica->ano);
+        printFilaPorAno(musica->prox, ano);
+    }
+}
+
+//==========================================================
+void procurarPorAno(TLista *list){
+    limpar();
+    unsigned int ano;
+    TMusica *musica;
+
+    musica = list->inicio;
+
+    printf("Ano de Lancamento da Musica: ");
+    scanf("%u",&ano);
+    
+    printListaPorAno(musica, ano);
+    limparBuffer();
+    getchar(); 
+}
+
+//==========================================================
+void excluirMusica(TLista *list){
+
 }
