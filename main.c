@@ -143,10 +143,11 @@ void inserirMusica(TLista *list){
 //==========================================================
 void listarMusicas(TLista lista){
     TMusica *atual = lista.inicio;
-
-    printf("\n(Nome   \tCantor   \tAno)");
+    
+    printf("Nome  \t\tArtista  \tAno\n");
     while(atual){
-        printf("\n%s   \t%s   \t%d",atual->nomeMusica, atual->cantor, atual->ano);
+        printf("\n%s | \t%s | \t%d ",atual->nomeMusica, atual->cantor, atual->ano);
+        printf("\n--------------------------------------------------------");
         atual = atual->prox;
     }
 }
@@ -232,13 +233,13 @@ void excluirMusica(TLista *list){
     if(!(noMusica)){printf("\nNao existe essa Musica!"); return;} //CASO NAO ENCONTRE NA ARVORE A MUSICA
 
     strcpy(artista, noMusica->filho->musica->cantor); //COPIO O NOME DO CANTOR A PARTIR DO NODO PARA OUTRA VARIAL
-    excluirDaFila(noMusica, musica, cmpMusica); //EXCLUIR O ELEMENTO DA FILA QUE APONTA PARA A MUSICA
+    excluirDaFila(noMusica, musica); //EXCLUIR O ELEMENTO DA FILA QUE APONTA PARA A MUSICA
                                                   //cmpMusica e cmpArtista E A CONDICAO PARA VERIFICAR O NOME DA MUSICA
                                                   //OU O NOME DO ARTISTA RESPECTIVAMENTE
     removeNo(list->indMusica, musica); //EXCLUIR O NODO MUSICA
 
     noArtista = procurarNo(list->indCantor, artista); //APONTO PARA O NODO DO ARTISTA
-    excluirDaFila(noArtista, artista, cmpArtista); //EXCLUIR O ELEMENTO DA FILA QUE APONTA PARA A MUSICA
+    excluirDaFila(noArtista, musica); //EXCLUIR O ELEMENTO DA FILA QUE APONTA PARA A MUSICA
     if(!(noArtista->filho)) removeNo(list->indCantor, artista); //CASO O NODO NAO APONTE PARA MAIS NADA EU REMOVO O ARTISTA DA ARVORE 
 
     if(excluirDaLista(list, musica)) printf("\n\nExcluiu");

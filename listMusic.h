@@ -47,9 +47,7 @@ TNo *inserirNo(TNo **nodo, char *str);
 TNo *removeNo(TNo *nodo, char *str);
 //FILA
 TFila *inserirFila(TFila **inicio, TFila *novo);
-int cmpMusica(TFila *atual, char* str);
-int cmpArtista(TFila *atual, char* str);
-int excluirDaFila(TNo *nodo, char *str, int(*cmp)(TFila*,char*));
+int excluirDaFila(TNo *nodo, char *str);
 
 //=== Funcoes ======================================================
 //======================LISTA=======================
@@ -174,8 +172,14 @@ TNo *removeNo(TNo *nodo, char *str){
             nodo = nodo->esq;
             free(aux);
         }else{
+            TFila *filaTp;
             TNo *aux = nodo->esq;
             while(aux->dir) aux = aux->dir;
+
+            filaTp = aux->filho;
+            aux->filho = nodo->filho; //TROCA DE PONTEIRO DAS FILAS
+            nodo->filho = filaTp;
+
             strcpy(nodo->nome, aux->nome);
             strcpy(aux->nome, str);
         }
@@ -195,19 +199,11 @@ TFila *inserirFila(TFila **inicio, TFila *novo){
     return *inicio;
 }
 
-int cmpMusica(TFila *atual, char* str){
-    return strcmp(atual->musica->nomeMusica, str);
-}
-
-int cmpArtista(TFila *atual, char* str){
-    return strcmp(atual->musica->cantor, str);
-}
-
-int excluirDaFila(TNo *nodo, char *str, int(*cmp)(TFila*,char*)){
+int excluirDaFila(TNo *nodo, char *str){
     TFila *atual;
     atual = nodo->filho;
     //VERIFICACAO SE O ELEMENTO E O PRIMEIRO DA FILA
-    if(!(cmp(atual, str))){
+    if(!(strcmp(atual->musica->nomeMusica, str))){
         nodo->filho = atual->prox;
         free(atual);
         return 1;   
@@ -218,7 +214,7 @@ int excluirDaFila(TNo *nodo, char *str, int(*cmp)(TFila*,char*)){
     atual = atual->prox;
 
     while(atual){
-        if(!(cmp(atual, str))){
+        if(!(strcmp(atual->musica->nomeMusica, str))){
             anterior->prox = atual->prox;
             free(atual);
             return 1;    
