@@ -40,8 +40,6 @@ typedef struct tipoLista {
 void iniciar(TLista *L);
 void inserirNaLista(TLista *L, TMusica *novo);
 int excluirDaLista(TLista *L, char *cantor);
-TMusica* procurarPosicao(int posicao, TLista *lista);
-TMusica *musicacpy(TMusica *original);
 //ARVORE BINARIA
 TNo *procurarNo(TNo *nodo, char *str);
 TNo *criarNo(char *str);
@@ -49,6 +47,9 @@ TNo *inserirNo(TNo **nodo, char *str);
 TNo *removeNo(TNo *nodo, char *str);
 //FILA
 TFila *inserirFila(TFila **inicio, TFila *novo);
+int cmpMusica(TFila *atual, char* str);
+int cmpArtista(TFila *atual, char* str);
+int excluirDaFila(TNo *nodo, char *str, int(*cmp)(TFila*,char*));
 
 //=== Funcoes ======================================================
 //======================LISTA=======================
@@ -81,13 +82,13 @@ void inserirNaLista(TLista *L, TMusica *novo){
 }
 
 //RETORNA UM VALOR DE CONFIRMACAO, 1 SE EXCLUIU E 0 SE N�O EXCLUIU
-int excluirDaLista(TLista *L, char *cantor){
+int excluirDaLista(TLista *L, char *musica){
    TMusica *atual = L->inicio;
    TMusica *anterior, *posterior;
    int excluido = 0;
    
    do{
-   	   if(strcmp(cantor, atual->cantor) == 0){
+   	   if(strcmp(musica, atual->nomeMusica) == 0){
    	   	  //Encontrado Registro a ser exclu�do...
    	   	  anterior = atual->ante;
    	   	  posterior = atual->prox;
@@ -119,29 +120,6 @@ int excluirDaLista(TLista *L, char *cantor){
    L->total--;
    return excluido;
 }
-
-//Procura uma pessoa pela sua posicao (valor inteiro) 
-TMusica* procurarNaPosicao(int posicao, TLista *lista){
-    int i=0;
-    TMusica *atual = lista->inicio;
-    while(i!=posicao && atual){
-        i++;
-        atual = atual->prox;
-    }
-    return atual;
-}
-
-TMusica *musicacpy(TMusica *original){
-	TMusica *copia = (TMusica*)malloc(sizeof(TMusica));
-    
-    strcpy(copia->cantor, original->cantor);
-    strcpy(copia->nomeMusica, original->nomeMusica);
-    copia->ano=original->ano;
-    copia->prox=NULL;
-    copia->ante=NULL;
-
-	return copia;
-}
 //===================================================================
 
 //=======================ARVORE BINARIA==============================
@@ -161,9 +139,8 @@ TNo *inserirNo(TNo **nodo, char *str){
         (*nodo) = criarNo(str);
     else if(strcmp(str, (*nodo)->nome) < 0)
         (*nodo)->esq = inserirNo(&(*nodo)->esq, str);
-    else
+    else if(strcmp(str, (*nodo)->nome) > 0)
         (*nodo)->dir = inserirNo(&(*nodo)->dir, str);
-    
     return *nodo;
 }
 
@@ -216,4 +193,38 @@ TFila *inserirFila(TFila **inicio, TFila *novo){
     else
         (*inicio)->prox = inserirFila(&(*inicio)->prox, novo);
     return *inicio;
+}
+
+int cmpMusica(TFila *atual, char* str){
+    return strcmp(atual->musica->nomeMusica, str);
+}
+
+int cmpArtista(TFila *atual, char* str){
+    return strcmp(atual->musica->cantor, str);
+}
+
+int excluirDaFila(TNo *nodo, char *str, int(*cmp)(TFila*,char*)){
+    TFila *atual;
+    atual = nodo->filho;
+    //VERIFICACAO SE O ELEMENTO E O PRIMEIRO DA FILA
+    if(!(cmp(atual, str))){
+        nodo->filho = atual->prox;
+        free(atual);
+        return 1;   
+    }
+
+    TFila *anterior;
+    anterior = atual;
+    atual = atual->prox;
+
+    while(atual){
+        if(!(cmp(atual, str))){
+            anterior->prox = atual->prox;
+            free(atual);
+            return 1;    
+        }
+        atual = atual->prox;
+        anterior = anterior->prox;
+    }
+    return 0;
 }

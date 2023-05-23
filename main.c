@@ -23,7 +23,6 @@ void printFila(TFila *fila);
 void procurarPeloArtista(TLista *list);
 void procurarPelaMusica(TLista *list);
 void procurarNaArvore(TLista *list, void (*procurar)(TLista*));
-void printListaPorAno(TMusica *musica, unsigned int ano);
 void procurarPorAno(TLista *list);
 void excluirMusica(TLista *list);
 
@@ -45,6 +44,7 @@ int main(){
             case 5: procurarPorAno(&lista);break;
             case 6: excluirMusica(&lista);break;
         }
+        if(opcao){limparBuffer(); getchar();}
     }while(opcao);
 
     return 0;
@@ -112,8 +112,8 @@ void addMusica(TLista *list, TMusica *musica){
     inserirNo(&list->indCantor, musica->cantor);
     inserirNo(&list->indMusica, musica->nomeMusica);
     inserirNaLista(list, musica);
-    addFila(list, nodoMusica); //ESTOU ENVIANDO A FUNÇÃO PARA UM PONTEIRO 
-    addFila(list, nodoCantor);
+    addFila(list, nodoMusica); //ESTOU PASSANDO UMA FUNCAO COMO PARAMETRO 
+    addFila(list, nodoCantor); //PARA ADICIONAR OS ELEMENTOS DOS NODOS NAS ARVORES CERTAS
 }
 
 //==========================================================
@@ -138,8 +138,6 @@ void inserirMusica(TLista *list){
     while(!feof(fl)){addMusica(list, lerArquivo(fl));}
     printf("\nArquivo lido");
     fclose(fl);
-    limparBuffer();
-    getchar();
 }
 
 //==========================================================
@@ -151,8 +149,6 @@ void listarMusicas(TLista lista){
         printf("\n%s   \t%s   \t%d",atual->nomeMusica, atual->cantor, atual->ano);
         atual = atual->prox;
     }
-    limparBuffer();
-    getchar();
 }
 
 //==========================================================
@@ -176,7 +172,6 @@ void caminhoEmOrdem(TNo *nodo, char *nome){
 //==========================================================
 void procurarPeloArtista(TLista *list){
     char nome[30];
-    limparBuffer();
 
     printf("Qual o Nome do Artita: ");
     scanf("%s",nome);
@@ -187,7 +182,6 @@ void procurarPeloArtista(TLista *list){
 //==========================================================
 void procurarPelaMusica(TLista *list){
     char nome[30];
-    limparBuffer();
 
     printf("Qual o Nome da Musica: ");
     scanf("%s",nome);
@@ -198,19 +192,8 @@ void procurarPelaMusica(TLista *list){
 //==========================================================
 void procurarNaArvore(TLista *list, void (*procurar)(TLista*)){
     limpar();
-
-    procurar(list);
-
     limparBuffer();
-    getchar();
-}
-
-//==========================================================
-void printFilaPorAno(TMusica *musica, unsigned int ano){
-    if(musica){
-        if(!(musica->ano - ano))printf("\n%s   \t%s   \t%d",musica->nomeMusica, musica->cantor, musica->ano);
-        printFilaPorAno(musica->prox, ano);
-    }
+    procurar(list);
 }
 
 //==========================================================
@@ -224,12 +207,39 @@ void procurarPorAno(TLista *list){
     printf("Ano de Lancamento da Musica: ");
     scanf("%u",&ano);
     
-    printListaPorAno(musica, ano);
-    limparBuffer();
-    getchar(); 
+    while(musica){
+        if(!(musica->ano - ano))printf("\n%s   \t%s   \t%d",musica->nomeMusica, musica->cantor, musica->ano);
+        musica = musica->prox;
+    }
 }
 
 //==========================================================
 void excluirMusica(TLista *list){
+    char musica[30], artista[30];
+    TNo *noArtista, *noMusica;
 
+    limpar();
+    printf("--EXCLUIR--");
+    printf("\nNome da Musica: ");
+    scanf("%s",musica);
+
+    //PARA EXCLUIR COM SUCESSO EU TENHO QUE PROCURAR
+    //NAS DUAS ARVORES BINARIAS ONDE QUE  
+    //CADA UMA APONTA PARA A MUSICA QUE EU QUERO EXCLUIR
+
+    //PARA TAL EU REALIZEI OS SEGUINTES PASSOS
+    noMusica = procurarNo(list->indMusica, musica); //APONTO PARA O NODO DA MUSICA
+    if(!(noMusica)){printf("\nNao existe essa Musica!"); return;} //CASO NAO ENCONTRE NA ARVORE A MUSICA
+
+    strcpy(artista, noMusica->filho->musica->cantor); //COPIO O NOME DO CANTOR A PARTIR DO NODO PARA OUTRA VARIAL
+    excluirDaFila(noMusica, musica, cmpMusica); //EXCLUIR O ELEMENTO DA FILA QUE APONTA PARA A MUSICA
+                                                  //cmpMusica e cmpArtista E A CONDICAO PARA VERIFICAR O NOME DA MUSICA
+                                                  //OU O NOME DO ARTISTA RESPECTIVAMENTE
+    removeNo(list->indMusica, musica); //EXCLUIR O NODO MUSICA
+
+    noArtista = procurarNo(list->indCantor, artista); //APONTO PARA O NODO DO ARTISTA
+    excluirDaFila(noArtista, artista, cmpArtista); //EXCLUIR O ELEMENTO DA FILA QUE APONTA PARA A MUSICA
+    if(!(noArtista->filho)) removeNo(list->indCantor, artista); //CASO O NODO NAO APONTE PARA MAIS NADA EU REMOVO O ARTISTA DA ARVORE 
+
+    if(excluirDaLista(list, musica)) printf("\n\nExcluiu");
 }
