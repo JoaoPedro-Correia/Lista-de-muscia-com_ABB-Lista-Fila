@@ -20,9 +20,9 @@ void inserirMusica(TLista *list);
 void listarMusicas(TLista lista);
 void caminhoEmOrdem(TNo *nodo, char *nome);
 void printFila(TFila *fila);
-void procurarPeloArtista(TLista *list);
-void procurarPelaMusica(TLista *list);
-void procurarNaArvore(TLista *list, void (*procurar)(TLista*));
+void procurarPeloArtista(TLista *list, char *nome);
+void procurarPelaMusica(TLista *list, char *nome);
+void procurarNaArvore(TLista *list, void (*procurar)(TLista*,char*));
 void procurarPorAno(TLista *list);
 void excluirMusica(TLista *list);
 
@@ -171,9 +171,7 @@ void caminhoEmOrdem(TNo *nodo, char *nome){
 }
 
 //==========================================================
-void procurarPeloArtista(TLista *list){
-    char nome[30];
-
+void procurarPeloArtista(TLista *list, char *nome){
     printf("Qual o Nome do Artita: ");
     scanf("%s",nome);
 
@@ -181,9 +179,7 @@ void procurarPeloArtista(TLista *list){
 }
 
 //==========================================================
-void procurarPelaMusica(TLista *list){
-    char nome[30];
-
+void procurarPelaMusica(TLista *list, char *nome){
     printf("Qual o Nome da Musica: ");
     scanf("%s",nome);
 
@@ -191,10 +187,11 @@ void procurarPelaMusica(TLista *list){
 }
 
 //==========================================================
-void procurarNaArvore(TLista *list, void (*procurar)(TLista*)){
+void procurarNaArvore(TLista *list, void (*procurar)(TLista*,char*)){
+    char nome[30];
     limpar();
     limparBuffer();
-    procurar(list);
+    procurar(list,nome);
 }
 
 //==========================================================
@@ -234,8 +231,7 @@ void excluirMusica(TLista *list){
 
     strcpy(artista, noMusica->filho->musica->cantor); //COPIO O NOME DO CANTOR A PARTIR DO NODO PARA OUTRA VARIAL
     excluirDaFila(noMusica, musica); //EXCLUIR O ELEMENTO DA FILA QUE APONTA PARA A MUSICA
-                                                  //cmpMusica e cmpArtista E A CONDICAO PARA VERIFICAR O NOME DA MUSICA
-                                                  //OU O NOME DO ARTISTA RESPECTIVAMENTE
+                                                  
     removeNo(list->indMusica, musica); //EXCLUIR O NODO MUSICA
 
     noArtista = procurarNo(list->indCantor, artista); //APONTO PARA O NODO DO ARTISTA
